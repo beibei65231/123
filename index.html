@@ -1068,12 +1068,12 @@
             position: fixed;
             inset: 0;
             z-index: 500;
-            background: rgba(5, 5, 10, 0.95);
+            background: radial-gradient(ellipse at center, #1a1a3e 0%, #0a0a1a 40%, #050510 70%, #020208 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: opacity 0.6s ease, visibility 0.6s ease;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
         }
 
         .start-overlay.hidden {
@@ -1084,40 +1084,63 @@
 
         .start-content {
             text-align: center;
-            animation: pulseInvite 2s ease-in-out infinite;
+            z-index: 10;
         }
 
         .start-icon {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
-            animation: bounce 1s ease-in-out infinite;
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            animation: bounce 1.5s ease-in-out infinite;
         }
 
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        @keyframes pulseInvite {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.1); }
         }
 
         .start-text {
             font-family: 'Noto Serif SC', serif;
-            font-size: 1.6rem;
+            font-size: clamp(1.4rem, 4vw, 2rem);
             font-weight: 400;
-            letter-spacing: 0.15em;
-            color: rgba(255, 215, 0, 0.9);
-            margin-bottom: 1rem;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            letter-spacing: 0.12em;
+            color: rgba(255, 215, 0, 0.95);
+            margin-bottom: 2rem;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+        }
+
+        .start-btn {
+            display: inline-block;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            color: #1f1f1f;
+            background: linear-gradient(135deg, #ffd700, #f59e0b);
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 15px 50px rgba(255, 215, 0, 0.4);
+            animation: pulseBtn 2s ease-in-out infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes pulseBtn {
+            0%, 100% { transform: scale(1); box-shadow: 0 15px 50px rgba(255, 215, 0, 0.4); }
+            50% { transform: scale(1.08); box-shadow: 0 20px 60px rgba(255, 215, 0, 0.6); }
         }
 
         .start-hint {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.5);
             font-weight: 300;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.15em;
+        }
+
+        .start-hint.error {
+            color: rgba(255, 100, 100, 0.8);
+        }
+
+        .start-hint.success {
+            color: rgba(100, 255, 150, 0.8);
         }
     </style>
 </head>
@@ -1193,19 +1216,21 @@
         <div class="wish-stars" id="wishStars"></div>
     </div>
 
-    <!-- 微信 JS-SDK 用于解决微信浏览器音频自动播放问题 -->
-    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
-
-    <!-- 首次点击引导遮罩 -->
+    <!-- 首次点击引导遮罩（必须点击才能播放音乐） -->
     <div class="start-overlay" id="startOverlay">
         <div class="start-content">
-            <div class="start-icon">🎉</div>
-            <p class="start-text">点击开启生日惊喜</p>
-            <p class="start-hint">♪ 背景音乐将开始播放</p>
+            <div class="start-icon">🎂</div>
+            <p class="start-text">点击屏幕开启生日惊喜</p>
+            <div class="start-btn">点击开始</div>
+            <p class="start-hint" id="audioHint">背景音乐将自动播放</p>
         </div>
     </div>
 
-    <audio id="bgMusic" src="生日.mp3" loop preload="auto"></audio>
+    <!-- 音频预加载 -->
+    <audio id="bgMusic" preload="auto">
+        <source src="birthday.mp3" type="audio/mpeg">
+        <source src="生日.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="carousel-modal" id="carouselModal">
         <div class="carousel-glow"></div>
@@ -1224,8 +1249,10 @@
     </div>
 
     <script>
+        // ========== 音频播放模块（核心修复）==========
         const bgMusic = document.getElementById('bgMusic');
         const startOverlay = document.getElementById('startOverlay');
+        const audioHint = document.getElementById('audioHint');
         let musicPlaying = false;
 
         // 更新音乐按钮状态
@@ -1242,73 +1269,52 @@
             }
         }
 
-        // 尝试播放音乐
+        // 尝试播放音乐（带错误提示）
         function tryPlayMusic() {
+            console.log('尝试播放音乐...');
+            audioHint.textContent = '正在加载音乐...';
+
             bgMusic.volume = 1;
             bgMusic.play().then(() => {
+                console.log('✅ 播放成功！');
                 musicPlaying = true;
                 updateMusicButton();
+                audioHint.textContent = '✓ 音乐播放成功！';
+                audioHint.classList.add('success');
                 // 播放成功后隐藏遮罩
-                if (startOverlay) startOverlay.classList.add('hidden');
-            }).catch((e) => {
-                console.log('播放失败，等待用户交互:', e);
+                setTimeout(() => {
+                    if (startOverlay) startOverlay.classList.add('hidden');
+                }, 800);
+            }).catch((err) => {
+                console.log('❌ 播放失败:', err);
                 musicPlaying = false;
+                audioHint.textContent = '播放失败，请再次点击按钮';
+                audioHint.classList.add('error');
             });
         }
 
-        // 检测是否在微信浏览器中
-        function isWechat() {
-            return /MicroMessenger/i.test(navigator.userAgent);
-        }
-
-        // 微信浏览器自动播放方案
-        if (isWechat()) {
-            wx.config({
-                debug: false,
-                appId: '',
-                timestamp: 1,
-                nonceStr: '',
-                signature: '',
-                jsApiList: ['chooseImage']
-            });
-            wx.ready(function() {
-                tryPlayMusic();
-            });
-            wx.error(function() {
-                // 微信SDK加载失败，显示遮罩等待用户点击
-                console.log('微信SDK初始化失败');
-            });
-        } else {
-            // 非微信浏览器，尝试直接播放（可能失败）
-            tryPlayMusic();
-        }
-
-        // 首次点击遮罩 - 通用解决方案
+        // 遮罩点击事件（关键：只用 click 事件）
         if (startOverlay) {
-            startOverlay.addEventListener('click', function() {
-                tryPlayMusic();
-                // 无论成功与否，都隐藏遮罩（用户已交互）
-                setTimeout(() => {
-                    startOverlay.classList.add('hidden');
-                }, 100);
-            });
-            startOverlay.addEventListener('touchend', function(e) {
+            startOverlay.addEventListener('click', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 tryPlayMusic();
-                setTimeout(() => {
-                    startOverlay.classList.add('hidden');
-                }, 100);
             });
         }
 
-        // 页面其他区域的点击也能触发播放（兜底）
-        document.addEventListener('click', function() {
-            if (!musicPlaying) tryPlayMusic();
-        }, { passive: true });
+        // 电脑端：尝试自动播放（可能成功）
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟一点尝试，给音频加载时间
+            setTimeout(() => {
+                tryPlayMusic();
+            }, 500);
+        });
 
         // 页面可见性变化时尝试恢复播放
         document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && !musicPlaying) tryPlayMusic();
+            if (!document.hidden && musicPlaying) {
+                bgMusic.play().catch(() => {});
+            }
         });
 
         const starsContainer = document.getElementById('stars');
