@@ -1062,6 +1062,63 @@
             .carousel-close { right: 20px; }
             .carousel-music-btn { left: 20px; }
         }
+
+        /* 首次点击引导遮罩 */
+        .start-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            background: rgba(5, 5, 10, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        .start-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .start-content {
+            text-align: center;
+            animation: pulseInvite 2s ease-in-out infinite;
+        }
+
+        .start-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes pulseInvite {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .start-text {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.6rem;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            color: rgba(255, 215, 0, 0.9);
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .start-hint {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 300;
+            letter-spacing: 0.2em;
+        }
     </style>
 </head>
 <body>
@@ -1136,7 +1193,19 @@
         <div class="wish-stars" id="wishStars"></div>
     </div>
 
-    <audio id="bgMusic" src="生日.mp3" loop></audio>
+    <!-- 微信 JS-SDK 用于解决微信浏览器音频自动播放问题 -->
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+
+    <!-- 首次点击引导遮罩 -->
+    <div class="start-overlay" id="startOverlay">
+        <div class="start-content">
+            <div class="start-icon">🎉</div>
+            <p class="start-text">点击开启生日惊喜</p>
+            <p class="start-hint">♪ 背景音乐将开始播放</p>
+        </div>
+    </div>
+
+    <audio id="bgMusic" src="生日.mp3" loop preload="auto"></audio>
 
     <div class="carousel-modal" id="carouselModal">
         <div class="carousel-glow"></div>
@@ -1156,32 +1225,90 @@
 
     <script>
         const bgMusic = document.getElementById('bgMusic');
+        const startOverlay = document.getElementById('startOverlay');
         let musicPlaying = false;
 
-        function playMusicNow() {
+        // 更新音乐按钮状态
+        function updateMusicButton() {
+            const musicBtn = document.getElementById('musicBtn');
+            if (musicBtn) {
+                musicBtn.textContent = musicPlaying ? '🔊' : '🎵';
+                musicBtn.classList.toggle('active', musicPlaying);
+            }
+            const carouselMusicBtn = document.getElementById('carouselMusicBtn');
+            if (carouselMusicBtn) {
+                carouselMusicBtn.textContent = musicPlaying ? '🔊' : '🎵';
+                carouselMusicBtn.classList.toggle('active', musicPlaying);
+            }
+        }
+
+        // 尝试播放音乐
+        function tryPlayMusic() {
             bgMusic.volume = 1;
             bgMusic.play().then(() => {
                 musicPlaying = true;
-                const musicBtn = document.getElementById('musicBtn');
-                if (musicBtn) {
-                    musicBtn.textContent = '🔊';
-                    musicBtn.classList.add('active');
-                }
-            }).catch(() => {
+                updateMusicButton();
+                // 播放成功后隐藏遮罩
+                if (startOverlay) startOverlay.classList.add('hidden');
+            }).catch((e) => {
+                console.log('播放失败，等待用户交互:', e);
                 musicPlaying = false;
             });
         }
 
-        playMusicNow();
+        // 检测是否在微信浏览器中
+        function isWechat() {
+            return /MicroMessenger/i.test(navigator.userAgent);
+        }
 
+        // 微信浏览器自动播放方案
+        if (isWechat()) {
+            wx.config({
+                debug: false,
+                appId: '',
+                timestamp: 1,
+                nonceStr: '',
+                signature: '',
+                jsApiList: ['chooseImage']
+            });
+            wx.ready(function() {
+                tryPlayMusic();
+            });
+            wx.error(function() {
+                // 微信SDK加载失败，显示遮罩等待用户点击
+                console.log('微信SDK初始化失败');
+            });
+        } else {
+            // 非微信浏览器，尝试直接播放（可能失败）
+            tryPlayMusic();
+        }
+
+        // 首次点击遮罩 - 通用解决方案
+        if (startOverlay) {
+            startOverlay.addEventListener('click', function() {
+                tryPlayMusic();
+                // 无论成功与否，都隐藏遮罩（用户已交互）
+                setTimeout(() => {
+                    startOverlay.classList.add('hidden');
+                }, 100);
+            });
+            startOverlay.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                tryPlayMusic();
+                setTimeout(() => {
+                    startOverlay.classList.add('hidden');
+                }, 100);
+            });
+        }
+
+        // 页面其他区域的点击也能触发播放（兜底）
+        document.addEventListener('click', function() {
+            if (!musicPlaying) tryPlayMusic();
+        }, { passive: true });
+
+        // 页面可见性变化时尝试恢复播放
         document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && !musicPlaying) playMusicNow();
-        });
-
-        ['click', 'touchstart', 'keydown', 'mousedown'].forEach(evt => {
-            document.addEventListener(evt, () => {
-                if (!musicPlaying) playMusicNow();
-            }, { passive: true, once: true });
+            if (!document.hidden && !musicPlaying) tryPlayMusic();
         });
 
         const starsContainer = document.getElementById('stars');
