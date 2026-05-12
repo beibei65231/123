@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>21岁生日邀约 🎂</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            margin: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cake {
+            font-size: 80px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin: 20px 0 10px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .age {
+            font-size: 6em;
+            font-weight: bold;
+            color: #f5576c;
+            text-shadow: 3px 3px 0 #ffd93d;
+            line-height: 1;
+            margin: 15px 0;
+        }
+
+        .date-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px 40px;
+            border-radius: 20px;
+            margin: 25px 0;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .date-label {
+            font-size: 1em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .date {
+            font-size: 2.2em;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        .message {
+            font-size: 1.2em;
+            color: #666;
+            line-height: 1.8;
+            margin: 25px 0;
+            padding: 0 10px;
+        }
+
+        .invite-btn {
+            display: inline-block;
+            padding: 18px 50px;
+            font-size: 1.3em;
+            color: white;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+            margin-top: 15px;
+        }
+
+        .invite-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(245, 87, 108, 0.5);
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .footer {
+            margin-top: 25px;
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .emoji-line {
+            font-size: 1.8em;
+            margin: 15px 0;
+            letter-spacing: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <div class="container">
+        <div class="cake">🎂</div>
+        <h1>生日邀约</h1>
+        <div class="age">21</div>
+
+        <div class="date-box">
+            <div class="date-label">相约时间</div>
+            <div class="date">5月18日</div>
+        </div>
+
+        <div class="message">
+            ✨ 青春正好，岁月如歌<br>
+            诚邀您共赴我的21岁生日派对<br>
+            期待与您共度美好时光！
+        </div>
+
+        <div class="emoji-line">🎈🎁🎊🎉</div>
+
+        <a href="#" class="invite-btn" onclick="acceptInvite()">接受邀约</a>
+
+        <div class="footer">
+            期待您的到来 💕
+        </div>
+    </div>
+
+    <script>
+        // 创建星星背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 创建彩带
+        function createConfetti() {
+            const colors = ['#f093fb', '#f5576c', '#ffd93d', '#667eea', '#764ba2', '#00f5d4'];
+            const shapes = ['🎉', '🎊', '✨', '⭐', '💫', '🎈'];
+
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                    confetti.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                    confetti.innerHTML = shapes[Math.floor(Math.random() * shapes.length)];
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 6000);
+                }, i * 200);
+            }
+        }
+
+        function acceptInvite() {
+            event.preventDefault();
+            createConfetti();
+            alert('🎉 太棒了！期待与你相见！\n\n记得把时间锁定：5月18日');
+        }
+
+        // 页面加载时
+        createStars();
+        setTimeout(createConfetti, 1000);
+    </script>
+</body>
+</html>
