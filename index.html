@@ -3,783 +3,416 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>考公新闻速览</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
-            min-height: 100vh; color: #fff;
-        }
-
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-
-        header { text-align: center; padding: 20px 0; }
-
-        h1 {
-            font-size: 1.8rem; margin-bottom: 8px;
-            background: linear-gradient(90deg, #00d9ff, #00ff88);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .subtitle { color: #8892b0; font-size: 0.85rem; }
-
-        .top-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; flex-wrap: wrap; gap: 10px;
-        }
-
-        .settings-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: #fff; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;
-        }
-        .settings-btn:hover { background: rgba(255,255,255,0.15); }
-
-        .controls { display: flex; justify-content: center; gap: 10px; margin: 15px 0; flex-wrap: wrap; }
-
-        .btn {
-            padding: 12px 35px; font-size: 0.9rem; border: none;
-            border-radius: 50px; cursor: pointer; font-weight: 600;
-            background: linear-gradient(135deg, #00d9ff, #00ff88); color: #1a1a2e;
-            transition: all 0.3s;
-        }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,217,255,0.3); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .btn-small { padding: 8px 20px; font-size: 0.8rem; }
-        .btn-outline {
-            background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #fff;
-        }
-        .btn-outline:hover { background: rgba(255,255,255,0.1); }
-        .btn-outline.active { background: rgba(0,217,255,0.2); border-color: #00d9ff; }
-
-        .loading { display: none; text-align: center; padding: 40px 20px; }
-        .loading.active { display: block; }
-        .spinner {
-            width: 45px; height: 45px; border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: #00d9ff; border-radius: 50%;
-            animation: spin 1s linear infinite; margin: 0 auto 12px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { color: #8892b0; font-size: 0.9rem; }
-
-        .tabs {
-            display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
-            justify-content: center;
-        }
-        .tab {
-            padding: 8px 18px; border-radius: 20px; cursor: pointer;
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: #8892b0; font-size: 0.85rem; transition: all 0.3s;
-        }
-        .tab:hover { background: rgba(255,255,255,0.1); }
-        .tab.active {
-            background: linear-gradient(135deg, #00d9ff, #00ff88);
-            color: #1a1a2e; border-color: transparent; font-weight: 600;
-        }
-        .tab .count { font-size: 0.75rem; opacity: 0.8; margin-left: 4px; }
-
-        .summary-section {
-            background: rgba(255,255,255,0.06); border-radius: 15px;
-            padding: 22px; border: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 25px;
-        }
-        .summary-header {
-            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
-            padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
-        .summary-badge {
-            background: linear-gradient(135deg, #00d9ff, #00ff88);
-            padding: 5px 12px; border-radius: 20px; font-size: 0.7rem;
-            color: #1a1a2e; font-weight: 600;
-        }
-        .summary-time { color: #8892b0; font-size: 0.75rem; margin-left: auto; }
-        .summary-body { line-height: 1.85; color: #e5e5e5; font-size: 0.92rem; }
-        .summary-body strong { color: #00ff88; }
-        .summary-body h4 {
-            color: #fff; margin: 20px 0 12px; font-size: 0.95rem;
-            padding-left: 12px; border-left: 3px solid #00d9ff;
-        }
-        .summary-body ul { margin: 8px 0 12px 20px; }
-        .summary-body li { margin-bottom: 6px; }
-
-        .news-grid {
-            display: grid; gap: 15px;
-        }
-
-        .news-card {
-            background: rgba(255,255,255,0.06); border-radius: 12px;
-            padding: 18px; border: 1px solid rgba(255,255,255,0.08);
-            cursor: pointer; transition: all 0.3s;
-        }
-        .news-card:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(0,217,255,0.3);
-            transform: translateY(-2px);
-        }
-        .news-card .category {
-            display: inline-block; padding: 3px 10px; border-radius: 12px;
-            font-size: 0.7rem; margin-bottom: 10px;
-            background: rgba(0,217,255,0.15); color: #00d9ff;
-        }
-        .news-card .category.politics { background: rgba(255,107,107,0.15); color: #ff6b6b; }
-        .news-card .category.finance { background: rgba(255,193,7,0.15); color: #ffc107; }
-        .news-card .category.tech { background: rgba(0,217,255,0.15); color: #00d9ff; }
-        .news-card .category.intl { background: rgba(156,39,176,0.15); color: #ce93d8; }
-        .news-card .category.society { background: rgba(76,175,80,0.15); color: #81c784; }
-        .news-card .category.other { background: rgba(158,158,158,0.15); color: #9e9e9e; }
-        .news-card .title {
-            font-size: 1rem; color: #fff; line-height: 1.5; margin-bottom: 10px;
-        }
-        .news-card .meta {
-            display: flex; justify-content: space-between; align-items: center;
-            color: #8892b0; font-size: 0.75rem;
-        }
-        .news-card .source { color: #00ff88; }
-
-        .pagination {
-            display: flex; justify-content: center; align-items: center;
-            gap: 8px; margin-top: 25px; flex-wrap: wrap;
-        }
-        .page-btn {
-            padding: 8px 14px; border-radius: 8px; cursor: pointer;
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: #8892b0; font-size: 0.85rem;
-        }
-        .page-btn:hover { background: rgba(255,255,255,0.1); }
-        .page-btn.active {
-            background: linear-gradient(135deg, #00d9ff, #00ff88);
-            color: #1a1a2e; border-color: transparent;
-        }
-        .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 1000;
-            justify-content: center; align-items: center; padding: 20px;
-        }
-        .modal.active { display: flex; }
-
-        .modal-content {
-            background: #1a1a2e; padding: 25px; border-radius: 15px;
-            max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .modal-content h3 {
-            color: #fff; font-size: 1.1rem; margin-bottom: 15px; line-height: 1.5;
-        }
-        .modal-content .close-btn {
-            position: absolute; top: 15px; right: 15px;
-            background: none; border: none; color: #8892b0; font-size: 1.5rem;
-            cursor: pointer;
-        }
-        .detail-meta {
-            display: flex; gap: 15px; margin-bottom: 20px;
-            color: #8892b0; font-size: 0.8rem; flex-wrap: wrap;
-        }
-        .detail-body {
-            color: #e5e5e5; line-height: 1.9; font-size: 0.92rem;
-        }
-        .detail-body img { max-width: 100%; border-radius: 8px; margin: 15px 0; }
-        .detail-link {
-            display: inline-block; margin-top: 20px;
-            color: #00d9ff; text-decoration: none; font-size: 0.85rem;
-        }
-        .detail-link:hover { text-decoration: underline; }
-
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #8892b0; font-size: 0.8rem; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 6px; background: rgba(255,255,255,0.05); color: #fff; font-size: 0.85rem;
-        }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #00d9ff; }
-        .form-group .hint { color: #666; font-size: 0.7rem; margin-top: 4px; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .modal-actions button { flex: 1; padding: 10px; border: none; border-radius: 6px; cursor: pointer; }
-        .btn-save { background: linear-gradient(135deg, #00d9ff, #00ff88); color: #1a1a2e; font-weight: 600; }
-        .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; }
-
-        .error-msg {
-            background: rgba(255,107,107,0.1); border-radius: 10px;
-            padding: 18px; color: #ff6b6b; text-align: center;
-        }
-
-        .info-msg { text-align: center; color: #8892b0; padding: 50px 20px; }
-        .info-msg .hint { font-size: 0.8rem; margin-top: 8px; color: #666; }
-
-        .stats-bar {
-            display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;
-            margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.03);
-            border-radius: 10px;
-        }
-        .stat-item { text-align: center; }
-        .stat-num { color: #00d9ff; font-size: 1.2rem; font-weight: 600; }
-        .stat-label { color: #8892b0; font-size: 0.75rem; }
-
-        .empty-state {
-            text-align: center; padding: 40px; color: #8892b0;
-        }
-    </style>
+    <title>晨曦 · Dawn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Noto+Sans+SC:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <div class="container">
-        <div class="top-bar">
-            <div></div>
-            <button class="settings-btn" onclick="openSettings()">⚙️ 设置API</button>
-        </div>
+    <!-- 背景层 - 清晨窗景 -->
+    <div class="background-layer">
+        <img src="https://images.unsplash.com/photo-1495195129352-aeb325a55b65?w=1920&q=80" alt="清晨天空" class="bg-photo active" id="bg-photo">
+    </div>
 
-        <header>
-            <h1>📰 考公新闻速览</h1>
-            <p class="subtitle" id="currentDate"></p>
+    <!-- 晨光叠加层 -->
+    <div class="sunlight-overlay"></div>
+
+    <!-- 空气灰尘微粒 -->
+    <div class="dust-particles" id="dust-particles"></div>
+
+    <!-- 窗帘边缘效果 -->
+    <div class="curtain-left"></div>
+    <div class="curtain-right"></div>
+
+    <!-- 主应用 -->
+    <div class="app-container">
+        <!-- 顶部导航 -->
+        <header class="top-header" id="top-header">
+            <div class="logo">
+                <span class="logo-icon">☀</span>
+                <span class="logo-name">晨曦</span>
+            </div>
+
+            <nav class="main-nav">
+                <button class="nav-btn active" data-page="home">
+                    <span>首页</span>
+                </button>
+                <button class="nav-btn" data-page="scene">
+                    <span>场景</span>
+                </button>
+                <button class="nav-btn" data-page="audio">
+                    <span>音乐</span>
+                </button>
+                <button class="nav-btn" data-page="timer">
+                    <span>专注</span>
+                </button>
+                <button class="nav-btn" data-page="plan">
+                    <span>计划</span>
+                </button>
+            </nav>
+
+            <div class="header-right">
+                <div class="music-status" id="music-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">音乐关闭</span>
+                </div>
+            </div>
         </header>
 
-        <div class="controls">
-            <button class="btn" id="refreshBtn" onclick="fetchAllNews()">获取昨日新闻</button>
-            <button class="btn btn-small btn-outline" id="summaryBtn" onclick="generateSummary()">生成AI摘要</button>
-        </div>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p class="loading-text" id="loadingText">获取新闻中...</p>
-        </div>
-
-        <div id="mainContent" style="display:none;">
-            <div class="stats-bar" id="statsBar"></div>
-
-            <div class="tabs" id="categoryTabs"></div>
-
-            <div id="summarySection" class="summary-section" style="display:none;">
-                <div class="summary-header">
-                    <span class="summary-badge">🤖 AI摘要</span>
-                    <span class="summary-time" id="summaryTime"></span>
-                </div>
-                <div class="summary-body" id="summaryBody"></div>
-            </div>
-
-            <div class="news-grid" id="newsGrid"></div>
-
-            <div class="pagination" id="pagination"></div>
-        </div>
-
-        <div id="initialMsg" class="info-msg">
-            点击「获取昨日新闻」开始获取考前一天的各类新闻<br>
-            <div class="hint">可配置AI API Key生成智能摘要</div>
-        </div>
-    </div>
-
-    <!-- 设置弹窗 -->
-    <div class="modal" id="settingsModal">
-        <div class="modal-content">
-            <h3>API 配置（可选）</h3>
-            <div class="form-group">
-                <label>服务商</label>
-                <select id="apiProvider" onchange="updateModelOptions()">
-                    <option value="deepseek">DeepSeek</option>
-                    <option value="zhipu">智谱AI</option>
-                    <option value="moonshot">Kimi (Moonshot)</option>
-                    <option value="qwen">阿里通义千问</option>
-                    <option value="openai">OpenAI</option>
-                    <option value="custom">自定义</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>API Key</label>
-                <input type="password" id="apiKey" placeholder="输入你的API Key">
-            </div>
-            <div class="form-group" id="modelGroup">
-                <label>模型</label>
-                <select id="modelSelect"></select>
-            </div>
-            <div class="form-group" id="customGroup" style="display:none;">
-                <label>自定义 API 地址</label>
-                <input type="text" id="customUrl" placeholder="https://api.xxx.com/v1">
-                <div class="hint">OpenAI兼容接口地址</div>
-            </div>
-            <div class="form-group" id="customModelGroup" style="display:none;">
-                <label>自定义模型名称</label>
-                <input type="text" id="customModel" placeholder="gpt-4o">
-            </div>
-            <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeSettings()">取消</button>
-                <button class="btn-save" onclick="saveSettings()">保存</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 新闻详情弹窗 -->
-    <div class="modal" id="newsModal">
-        <div class="modal-content" style="position:relative;">
-            <button class="close-btn" onclick="closeNewsModal()">&times;</button>
-            <div id="newsDetail"></div>
-        </div>
-    </div>
-
-    <script>
-        const RSS_TO_JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
-
-        const NEWS_SOURCES = [
-            // 时政要闻（考公重点）
-            { name: '新华网', url: 'http://www.news.cn/politics/news_politics.xml', category: '时政' },
-            { name: '人民网', url: 'http://www.people.com.cn/rss/politics.xml', category: '时政' },
-            { name: '中国新闻网', url: 'http://www.chinanews.com.cn/rss/news.xml', category: '时政' },
-            { name: '央视新闻', url: 'https://news.cctv.com/rss/data.xml', category: '时政' },
-            { name: '光明网', url: 'https://www.gmw.cn/rss/politics.xml', category: '时政' },
-            // 财经
-            { name: '财经网', url: 'https://www.caijing.com.cn/rss/news.xml', category: '财经' },
-            { name: '经济观察', url: 'http://www.eeo.com.cn/rss/news.xml', category: '财经' },
-            { name: '第一财经', url: 'https://www.yicai.com/rss/news.xml', category: '财经' },
-            { name: '证券时报', url: 'https://www.stcn.com/rss/news.xml', category: '财经' },
-            // 国际
-            { name: 'BBC中文', url: 'https://feeds.bbci.co.uk/zhongwen/simp/rss.xml', category: '国际' },
-            { name: 'DW德国之声', url: 'https://rss.dw.com/xml/rss-chi-all', category: '国际' },
-            { name: 'RFI法国国际', url: 'https://www.rfi.fr/cn/RSS', category: '国际' },
-            // 科技
-            { name: '36氪', url: 'https://36kr.com/feed', category: '科技' },
-            { name: '虎嗅', url: 'https://www.huxiu.com/rss/0.xml', category: '科技' },
-            { name: 'IT之家', url: 'https://www.ithome.com/rss/', category: '科技' },
-            // 社会
-            { name: '澎湃新闻', url: 'https://www.thepaper.cn/rss_news.xml', category: '社会' },
-            { name: '网易新闻', url: 'https://news.163.com/special/00011K6L/rss_newstop.xml', category: '社会' }
-        ];
-
-        const API_CONFIGS = {
-            deepseek: { baseUrl: 'https://api.deepseek.com/v1', models: ['deepseek-chat', 'deepseek-reasoner'] },
-            zhipu: { baseUrl: 'https://open.bigmodel.cn/api/paas/v4', models: ['glm-4-flash', 'glm-4', 'glm-4-plus'] },
-            moonshot: { baseUrl: 'https://api.moonshot.cn/v1', models: ['moonshot-v1-8k', 'moonshot-v1-32k'] },
-            qwen: { baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', models: ['qwen-turbo', 'qwen-plus', 'qwen-max'] },
-            openai: { baseUrl: 'https://api.openai.com/v1', models: ['gpt-4o-mini', 'gpt-4o'] }
-        };
-
-        const CATEGORY_ICONS = {
-            '时政': '🏛️', '财经': '💰', '国际': '🌍', '科技': '💻', '社会': '📢', '其他': '📄'
-        };
-
-        let settings = { provider: 'deepseek', apiKey: 'sk-f10d1da8c06041abb276eaeedba72718', model: 'deepseek-chat', customUrl: '', customModel: '' };
-        let allNews = [];
-        let filteredNews = [];
-        let currentCategory = '全部';
-        let currentPage = 1;
-        const PAGE_SIZE = 15;
-
-        window.onload = function() {
-            showDate();
-            loadSettings();
-        };
-
-        function showDate() {
-            const yesterday = getYesterday();
-            document.getElementById('currentDate').textContent =
-                yesterday.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }) + ' 新闻速览';
-        }
-
-        function getYesterday() {
-            const d = new Date();
-            d.setDate(d.getDate() - 1);
-            return d;
-        }
-
-        function isYesterday(dateStr) {
-            if (!dateStr) return false;
-            const date = new Date(dateStr);
-            const yesterday = getYesterday();
-            return date.toDateString() === yesterday.toDateString();
-        }
-
-        function loadSettings() {
-            const saved = localStorage.getItem('newsSettings');
-            if (saved) {
-                settings = { ...settings, ...JSON.parse(saved) };
-                document.getElementById('apiProvider').value = settings.provider || 'deepseek';
-                document.getElementById('apiKey').value = settings.apiKey || '';
-                updateModelOptions();
-                if (settings.provider === 'custom') {
-                    document.getElementById('customUrl').value = settings.customUrl || '';
-                    document.getElementById('customModel').value = settings.customModel || '';
-                    document.getElementById('customGroup').style.display = 'block';
-                    document.getElementById('customModelGroup').style.display = 'block';
-                    document.getElementById('modelGroup').style.display = 'none';
-                }
-            }
-        }
-
-        function updateModelOptions() {
-            const provider = document.getElementById('apiProvider').value;
-            const modelSelect = document.getElementById('modelSelect');
-            const modelGroup = document.getElementById('modelGroup');
-            const customGroup = document.getElementById('customGroup');
-            const customModelGroup = document.getElementById('customModelGroup');
-
-            if (provider === 'custom') {
-                modelGroup.style.display = 'none';
-                customGroup.style.display = 'block';
-                customModelGroup.style.display = 'block';
-            } else {
-                modelGroup.style.display = 'block';
-                customGroup.style.display = 'none';
-                customModelGroup.style.display = 'none';
-                const models = API_CONFIGS[provider]?.models || [];
-                modelSelect.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
-                modelSelect.value = settings.model || models[0];
-            }
-        }
-
-        function openSettings() { document.getElementById('settingsModal').classList.add('active'); }
-        function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
-
-        function saveSettings() {
-            const provider = document.getElementById('apiProvider').value;
-            settings.provider = provider;
-            settings.apiKey = document.getElementById('apiKey').value.trim();
-            if (provider === 'custom') {
-                settings.customUrl = document.getElementById('customUrl').value.trim();
-                settings.customModel = document.getElementById('customModel').value.trim();
-                settings.model = settings.customModel;
-            } else {
-                settings.model = document.getElementById('modelSelect').value;
-                settings.customUrl = '';
-                settings.customModel = '';
-            }
-            localStorage.setItem('newsSettings', JSON.stringify(settings));
-            closeSettings();
-        }
-
-        async function fetchRSS(source) {
-            try {
-                const res = await fetch(`${RSS_TO_JSON}${encodeURIComponent(source.url)}`);
-                const data = await res.json();
-                if (data.status === 'ok' && data.items) {
-                    return data.items.map(item => ({
-                        title: item.title,
-                        link: item.link,
-                        source: source.name,
-                        category: source.category,
-                        pubDate: item.pubDate,
-                        description: item.description || item.content || '',
-                        content: item.content || item.description || ''
-                    }));
-                }
-            } catch (e) { console.error(source.name, e); }
-            return [];
-        }
-
-        async function fetchAllNews() {
-            const loading = document.getElementById('loading');
-            const btn = document.getElementById('refreshBtn');
-            loading.classList.add('active');
-            btn.disabled = true;
-            allNews = [];
-
-            try {
-                const batchSize = 4;
-                for (let i = 0; i < NEWS_SOURCES.length; i += batchSize) {
-                    const batch = NEWS_SOURCES.slice(i, i + batchSize);
-                    const results = await Promise.all(batch.map(s => fetchRSS(s)));
-                    allNews = allNews.concat(results.flat());
-                    document.getElementById('loadingText').textContent =
-                        `获取新闻中... ${Math.min(i + batchSize, NEWS_SOURCES.length)}/${NEWS_SOURCES.length}`;
-                }
-
-                // 去重
-                const seen = new Set();
-                allNews = allNews.filter(n => {
-                    if (seen.has(n.title)) return false;
-                    seen.add(n.title);
-                    return true;
-                });
-
-                // 按时间排序
-                allNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-                // 筛选昨天的新闻，如果没有则显示最近100条
-                const yesterdayNews = allNews.filter(n => isYesterday(n.pubDate));
-                if (yesterdayNews.length > 10) {
-                    allNews = yesterdayNews;
-                } else {
-                    allNews = allNews.slice(0, 100);
-                }
-
-                document.getElementById('initialMsg').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                document.getElementById('summaryBtn').style.display = settings.apiKey ? 'inline-block' : 'none';
-
-                renderStats();
-                renderTabs();
-                currentCategory = '全部';
-                currentPage = 1;
-                renderNews();
-            } catch (e) {
-                alert('获取新闻失败: ' + e.message);
-            }
-
-            loading.classList.remove('active');
-            btn.disabled = false;
-        }
-
-        function renderStats() {
-            const categories = {};
-            allNews.forEach(n => { categories[n.category] = (categories[n.category] || 0) + 1; });
-
-            document.getElementById('statsBar').innerHTML = `
-                <div class="stat-item"><span class="stat-num">${allNews.length}</span><br><span class="stat-label">新闻总数</span></div>
-                <div class="stat-item"><span class="stat-num">${Object.keys(categories).length}</span><br><span class="stat-label">领域覆盖</span></div>
-                <div class="stat-item"><span class="stat-num">${allNews.filter(n => n.category === '时政').length}</span><br><span class="stat-label">时政要闻</span></div>
-            `;
-        }
-
-        function renderTabs() {
-            const categories = { '全部': allNews.length };
-            allNews.forEach(n => { categories[n.category] = (categories[n.category] || 0) + 1; });
-
-            document.getElementById('categoryTabs').innerHTML = Object.entries(categories)
-                .map(([cat, count]) => `
-                    <div class="tab ${currentCategory === cat ? 'active' : ''}" onclick="filterByCategory('${cat}')">
-                        ${CATEGORY_ICONS[cat] || '📄'} ${cat}<span class="count">(${count})</span>
+        <!-- 页面内容 -->
+        <main class="page-container">
+            <!-- 首页 -->
+            <section class="page active" id="page-home">
+                <div class="hero-section">
+                    <div class="hero-badge">沉浸式学习空间</div>
+                    <h1 class="hero-title">
+                        开启你的<br>
+                        <span class="highlight">清晨自习室</span>
+                    </h1>
+                    <p class="hero-desc">
+                        在宁静的氛围中找回专注的力量<br>
+                        每一个清晨，都值得被认真对待
+                    </p>
+                    <div class="hero-actions">
+                        <button class="btn-primary" id="start-btn">
+                            开始学习
+                        </button>
+                        <button class="btn-secondary" id="explore-btn">
+                            探索场景
+                        </button>
                     </div>
-                `).join('');
-        }
-
-        function filterByCategory(cat) {
-            currentCategory = cat;
-            currentPage = 1;
-            renderTabs();
-            renderNews();
-        }
-
-        function renderNews() {
-            filteredNews = currentCategory === '全部'
-                ? allNews
-                : allNews.filter(n => n.category === currentCategory);
-
-            const start = (currentPage - 1) * PAGE_SIZE;
-            const pageNews = filteredNews.slice(start, start + PAGE_SIZE);
-
-            const grid = document.getElementById('newsGrid');
-            if (pageNews.length === 0) {
-                grid.innerHTML = '<div class="empty-state">暂无新闻</div>';
-                return;
-            }
-
-            grid.innerHTML = pageNews.map((n, i) => `
-                <div class="news-card" onclick="showNewsDetail(${start + i})">
-                    <span class="category ${getCategoryClass(n.category)}">${n.category}</span>
-                    <div class="title">${escapeHtml(n.title)}</div>
-                    <div class="meta">
-                        <span class="source">${n.source}</span>
-                        <span>${formatDate(n.pubDate)}</span>
+                    <div class="hero-features">
+                        <div class="feature-item">
+                            <span class="feature-num">9</span>
+                            <span class="feature-label">沉浸场景</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-num">8+</span>
+                            <span class="feature-label">环境音效</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-num">∞</span>
+                            <span class="feature-label">专注时刻</span>
+                        </div>
                     </div>
                 </div>
-            `).join('');
+            </section>
 
-            renderPagination();
-        }
-
-        function getCategoryClass(cat) {
-            const map = { '时政': 'politics', '财经': 'finance', '科技': 'tech', '国际': 'intl', '社会': 'society' };
-            return map[cat] || 'other';
-        }
-
-        function renderPagination() {
-            const totalPages = Math.ceil(filteredNews.length / PAGE_SIZE);
-            if (totalPages <= 1) {
-                document.getElementById('pagination').innerHTML = '';
-                return;
-            }
-
-            let html = `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>`;
-
-            const range = getPageRange(currentPage, totalPages);
-            range.forEach(p => {
-                if (p === '...') {
-                    html += `<span style="color:#8892b0;">...</span>`;
-                } else {
-                    html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
-                }
-            });
-
-            html += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button>`;
-            document.getElementById('pagination').innerHTML = html;
-        }
-
-        function getPageRange(current, total) {
-            if (total <= 7) return Array.from({length: total}, (_, i) => i + 1);
-            if (current <= 3) return [1, 2, 3, 4, 5, '...', total];
-            if (current >= total - 2) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
-            return [1, '...', current - 1, current, current + 1, '...', total];
-        }
-
-        function goToPage(p) {
-            const totalPages = Math.ceil(filteredNews.length / PAGE_SIZE);
-            if (p < 1 || p > totalPages) return;
-            currentPage = p;
-            renderNews();
-            window.scrollTo({ top: document.getElementById('newsGrid').offsetTop - 20, behavior: 'smooth' });
-        }
-
-        function showNewsDetail(index) {
-            const news = filteredNews[index];
-            const desc = stripHtml(news.description || news.content || '暂无详细内容');
-
-            document.getElementById('newsDetail').innerHTML = `
-                <div class="detail-meta">
-                    <span class="category ${getCategoryClass(news.category)}">${news.category}</span>
-                    <span style="color:#00ff88;">${news.source}</span>
-                    <span>${formatDate(news.pubDate)}</span>
+            <!-- 场景页 -->
+            <section class="page" id="page-scene">
+                <div class="page-header">
+                    <h2>沉浸场景</h2>
+                    <p>选择一个让你心安的环境</p>
                 </div>
-                <h3>${escapeHtml(news.title)}</h3>
-                <div class="detail-body">${desc}</div>
-                <a href="${news.link}" target="_blank" class="detail-link">查看原文 →</a>
-            `;
-            document.getElementById('newsModal').classList.add('active');
-        }
 
-        function closeNewsModal() {
-            document.getElementById('newsModal').classList.remove('active');
-        }
+                <div class="scene-grid">
+                    <div class="scene-card active" data-scene="morning-sky">
+                        <img src="https://images.unsplash.com/photo-1495195129352-aeb325a55b65?w=600&q=80" alt="晨曦天空">
+                        <div class="scene-info">
+                            <h3>晨曦天空</h3>
+                            <p>破晓时分，万物苏醒</p>
+                        </div>
+                    </div>
+                    <div class="scene-card" data-scene="city-dawn">
+                        <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80" alt="都市黎明">
+                        <div class="scene-info">
+                            <h3>都市黎明</h3>
+                            <p>城市天际线，安静破晓</p>
+                        </div>
+                    </div>
+                    <div class="scene-card" data-scene="mountain">
+                        <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80" alt="山景晨雾">
+                        <div class="scene-info">
+                            <h3>山景晨雾</h3>
+                            <p>云雾缭绕，心旷神怡</p>
+                        </div>
+                    </div>
+                    <div class="scene-card" data-scene="minimal-room">
+                        <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=600&q=80" alt="简约书房">
+                        <div class="scene-info">
+                            <h3>简约书房</h3>
+                            <p>木质桌面，安静独处</p>
+                        </div>
+                    </div>
+                    <div class="scene-card" data-scene="forest">
+                        <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80" alt="森林清晨">
+                        <div class="scene-info">
+                            <h3>森林清晨</h3>
+                            <p>阳光穿透树叶，宁静致远</p>
+                        </div>
+                    </div>
+                    <div class="scene-card" data-scene="rain">
+                        <img src="https://images.unsplash.com/photo-1428592953211-077101b2021b?w=600&q=80" alt="雨天窗边">
+                        <div class="scene-info">
+                            <h3>雨天窗边</h3>
+                            <p>窗外雨声，室内安宁</p>
+                        </div>
+                    </div>
+                    <div class="scene-card" data-scene="cafe">
+                        <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&q=80" alt="咖啡馆">
+                        <div class="scene-info">
+                            <h3>咖啡馆</h3>
+                            <p>城市角落，温暖节奏</p>
+                        </div>
+                    </div>
+                    <div class="scene-card" data-scene="window-plants">
+                        <img src="https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=600&q=80" alt="窗边绿植">
+                        <div class="scene-info">
+                            <h3>窗边绿植</h3>
+                            <p>阳光洒落，生机盎然</p>
+                        </div>
+                    </div>
+                    <div class="scene-card" data-scene="library">
+                        <img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=600&q=80" alt="图书馆">
+                        <div class="scene-info">
+                            <h3>图书馆</h3>
+                            <p>书香气息，静谧时光</p>
+                        </div>
+                    </div>
+                </div>
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
+                <div class="scene-settings">
+                    <h3>场景调节</h3>
+                    <div class="setting-row">
+                        <label>亮度</label>
+                        <input type="range" id="brightness-slider" min="30" max="70" value="50">
+                        <span id="brightness-val">50%</span>
+                    </div>
+                    <div class="setting-row">
+                        <label>模糊度</label>
+                        <input type="range" id="blur-slider" min="0" max="30" value="10">
+                        <span id="blur-val">10%</span>
+                    </div>
+                    <button class="apply-btn" id="apply-scene-btn">应用设置</button>
+                </div>
+            </section>
 
-        function stripHtml(str) {
-            if (!str) return '';
-            return str.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&[a-z]+;/g, '');
-        }
+            <!-- 音乐页 -->
+            <section class="page" id="page-audio">
+                <div class="page-header">
+                    <h2>音乐氛围</h2>
+                    <p>混合你专属的环境音乐</p>
+                </div>
 
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            const d = new Date(dateStr);
-            return d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        }
+                <div class="mixer-panel">
+                    <div class="mixer-channel" data-channel="rain">
+                        <span class="channel-name">雨声</span>
+                        <input type="range" class="channel-slider" min="0" max="100" value="0">
+                        <div class="channel-level">
+                            <div class="level-fill"></div>
+                        </div>
+                    </div>
+                    <div class="mixer-channel" data-channel="cafe">
+                        <span class="channel-name">咖啡馆</span>
+                        <input type="range" class="channel-slider" min="0" max="100" value="30">
+                        <div class="channel-level">
+                            <div class="level-fill" style="height:30%"></div>
+                        </div>
+                    </div>
+                    <div class="mixer-channel" data-channel="night">
+                        <span class="channel-name">夜晚</span>
+                        <input type="range" class="channel-slider" min="0" max="100" value="20">
+                        <div class="channel-level">
+                            <div class="level-fill" style="height:20%"></div>
+                        </div>
+                    </div>
+                    <div class="mixer-channel" data-channel="wind">
+                        <span class="channel-name">风声</span>
+                        <input type="range" class="channel-slider" min="0" max="100" value="0">
+                        <div class="channel-level">
+                            <div class="level-fill"></div>
+                        </div>
+                    </div>
+                    <div class="mixer-channel" data-channel="fire">
+                        <span class="channel-name">壁炉</span>
+                        <input type="range" class="channel-slider" min="0" max="100" value="0">
+                        <div class="channel-level">
+                            <div class="level-fill"></div>
+                        </div>
+                    </div>
+                    <div class="mixer-channel" data-channel="waves">
+                        <span class="channel-name">海浪</span>
+                        <input type="range" class="channel-slider" min="0" max="100" value="0">
+                        <div class="channel-level">
+                            <div class="level-fill"></div>
+                        </div>
+                    </div>
+                    <div class="mixer-channel" data-channel="birds">
+                        <span class="channel-name">鸟鸣</span>
+                        <input type="range" class="channel-slider" min="0" max="100" value="0">
+                        <div class="channel-level">
+                            <div class="level-fill"></div>
+                        </div>
+                    </div>
+                    <div class="mixer-channel" data-channel="white">
+                        <span class="channel-name">白噪音</span>
+                        <input type="range" class="channel-slider" min="0" max="100" value="0">
+                        <div class="channel-level">
+                            <div class="level-fill"></div>
+                        </div>
+                    </div>
+                </div>
 
-        async function generateSummary() {
-            if (!settings.apiKey) {
-                alert('请先在设置中配置API Key');
-                return;
-            }
+                <div class="audio-controls">
+                    <div class="master-volume">
+                        <label>总音量</label>
+                        <input type="range" id="master-volume" min="0" max="100" value="50">
+                        <span id="volume-val">50%</span>
+                    </div>
+                    <button class="play-btn" id="play-btn">
+                        <span class="play-icon">▶</span>
+                        <span class="play-text">播放</span>
+                    </button>
+                </div>
 
-            const btn = document.getElementById('summaryBtn');
-            btn.disabled = true;
-            btn.textContent = '生成中...';
+                <div class="preset-list">
+                    <h4>氛围预设</h4>
+                    <div class="presets">
+                        <button class="preset-btn" data-preset="morning">清晨书房</button>
+                        <button class="preset-btn" data-preset="rainy">雨天午后</button>
+                        <button class="preset-btn" data-preset="cafe">咖啡馆工作</button>
+                        <button class="preset-btn" data-preset="focus">深夜专注</button>
+                        <button class="preset-btn" data-preset="calm">森林冥想</button>
+                    </div>
+                </div>
+            </section>
 
-            try {
-                const newsText = allNews.slice(0, 100).map(n =>
-                    `[${n.category}] ${n.source}: ${n.title}`
-                ).join('\n');
+            <!-- 专注页 -->
+            <section class="page" id="page-timer">
+                <div class="page-header">
+                    <h2>番茄钟</h2>
+                    <p>专注于当下，享受每一刻</p>
+                </div>
 
-                const summary = await callAI(newsText, allNews.length);
+                <div class="timer-box">
+                    <div class="timer-ring">
+                        <svg viewBox="0 0 200 200">
+                            <circle class="timer-track" cx="100" cy="100" r="90"/>
+                            <circle class="timer-progress" cx="100" cy="100" r="90" id="timer-progress"/>
+                        </svg>
+                        <div class="timer-center">
+                            <div class="timer-display" id="timer-display">25:00</div>
+                            <div class="timer-label" id="timer-label">准备开始</div>
+                        </div>
+                    </div>
 
-                document.getElementById('summarySection').style.display = 'block';
-                document.getElementById('summaryTime').textContent = new Date().toLocaleTimeString('zh-CN');
-                document.getElementById('summaryBody').innerHTML = formatMarkdown(summary);
+                    <div class="timer-presets">
+                        <button class="preset-time active" data-time="5">5分钟</button>
+                        <button class="preset-time" data-time="15">15分钟</button>
+                        <button class="preset-time" data-time="25">25分钟</button>
+                        <button class="preset-time" data-time="45">45分钟</button>
+                        <button class="preset-time" data-time="60">60分钟</button>
+                    </div>
 
-                document.getElementById('summarySection').scrollIntoView({ behavior: 'smooth' });
-            } catch (e) {
-                alert('生成摘要失败: ' + e.message);
-            }
+                    <div class="timer-controls">
+                        <button class="timer-btn primary" id="timer-start-btn">开始</button>
+                        <button class="timer-btn secondary hidden" id="timer-pause-btn">暂停</button>
+                        <button class="timer-btn outline" id="timer-reset-btn">重置</button>
+                    </div>
 
-            btn.disabled = false;
-            btn.textContent = '生成AI摘要';
-        }
+                    <div class="timer-stats">
+                        <div class="stat-box">
+                            <span class="stat-num" id="today-minutes">0</span>
+                            <span class="stat-unit">分钟</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-num" id="today-pomodoros">0</span>
+                            <span class="stat-unit">番茄</span>
+                        </div>
+                    </div>
+                </div>
 
-        async function callAI(newsText, count) {
-            let baseUrl, model;
-            if (settings.provider === 'custom') {
-                baseUrl = settings.customUrl;
-                model = settings.customModel;
-            } else {
-                baseUrl = API_CONFIGS[settings.provider]?.baseUrl;
-                model = settings.model;
-            }
+                <div class="timer-settings">
+                    <div class="setting-item">
+                        <span>自动开始下一个</span>
+                        <div class="toggle" id="auto-toggle">
+                            <div class="toggle-dot"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <span>休息时长</span>
+                        <div class="setting-options">
+                            <button class="opt-btn" data-rest="5">5分</button>
+                            <button class="opt-btn active" data-rest="10">10分</button>
+                            <button class="opt-btn" data-rest="15">15分</button>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <span>提醒音效</span>
+                        <div class="setting-options">
+                            <button class="opt-btn active" data-sound="gentle">轻柔</button>
+                            <button class="opt-btn" data-sound="bell">铃声</button>
+                            <button class="opt-btn" data-sound="none">无</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-            const res = await fetch(`${baseUrl}/chat/completions`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${settings.apiKey}`
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [
-                        {
-                            role: 'system',
-                            content: `你是一位专业的公务员考试新闻分析员，为考生整理每日重要新闻摘要。
+            <!-- 计划页 -->
+            <section class="page" id="page-plan">
+                <div class="page-header">
+                    <h2>今日计划</h2>
+                    <p>规划你的专注时刻</p>
+                </div>
 
-任务：分析${count}条新闻，生成对考公有价值的摘要。
+                <div class="plan-stats">
+                    <div class="plan-card">
+                        <span class="plan-num" id="plan-minutes">0</span>
+                        <span class="plan-unit">分钟</span>
+                        <span class="plan-label">今日专注</span>
+                    </div>
+                    <div class="plan-card">
+                        <span class="plan-num" id="plan-done">0</span>
+                        <span class="plan-unit">个</span>
+                        <span class="plan-label">完成任务</span>
+                    </div>
+                    <div class="plan-card">
+                        <span class="plan-num" id="plan-streak">0</span>
+                        <span class="plan-unit">天</span>
+                        <span class="plan-label">连续专注</span>
+                    </div>
+                </div>
 
-输出格式：
-## 📌 今日要闻综述
-3-5句话概括今日最重要的新闻趋势和重大事件。
+                <div class="task-panel">
+                    <div class="task-input-row">
+                        <input type="text" class="task-input" id="task-input" placeholder="添加新任务...">
+                        <input type="number" class="task-pomo-num" id="task-pomo" value="2" min="1" max="10">
+                        <span class="pomo-label">番茄</span>
+                        <button class="task-add-btn" id="task-add-btn">+</button>
+                    </div>
+                    <ul class="task-list" id="task-list"></ul>
+                    <button class="clear-btn" id="clear-done-btn">清除已完成</button>
+                </div>
 
-## 🏛️ 时政要闻（重点）
-列出5-8条时政新闻，每条包含：
-- 具体事件内容（政策、会议、人事变动等）
-- 可能的考点或命题方向
-- 来源媒体
+                <div class="weekly-chart">
+                    <h4>本周专注</h4>
+                    <div class="chart-bars">
+                        <div class="chart-col"><div class="bar" id="bar-0"></div><span>周一</span></div>
+                        <div class="chart-col"><div class="bar" id="bar-1"></div><span>周二</span></div>
+                        <div class="chart-col"><div class="bar" id="bar-2"></div><span>周三</span></div>
+                        <div class="chart-col"><div class="bar" id="bar-3"></div><span>周四</span></div>
+                        <div class="chart-col"><div class="bar" id="bar-4"></div><span>周五</span></div>
+                        <div class="chart-col"><div class="bar" id="bar-5"></div><span>周六</span></div>
+                        <div class="chart-col"><div class="bar" id="bar-6"></div><span>周日</span></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 
-## 💰 财经热点
-列出3-5条财经新闻，关注经济政策、数据。
+    <!-- 提示框 -->
+    <div class="toast-box" id="toast-box"></div>
 
-## 🌍 国际动态
-列出3-5条国际新闻，关注与中国相关的重大事件。
+    <!-- 音频元素 -->
+    <audio id="audio-rain" loop preload="auto"></audio>
+    <audio id="audio-cafe" loop preload="auto"></audio>
+    <audio id="audio-night" loop preload="auto"></audio>
+    <audio id="audio-wind" loop preload="auto"></audio>
+    <audio id="audio-fire" loop preload="auto"></audio>
+    <audio id="audio-waves" loop preload="auto"></audio>
+    <audio id="audio-birds" loop preload="auto"></audio>
+    <audio id="audio-white" loop preload="auto"></audio>
+    <audio id="audio-notify" preload="auto"></audio>
 
-## 💻 科技前沿
-列出3-5条科技新闻，关注重大突破、行业动态。
-
-## 📢 社会热点
-列出3-5条社会新闻，关注民生、教育、环保等话题。
-
-## 💡 考公考点提示
-总结2-3个可能出现在申论或行测中的考点方向。
-
-要求：
-- 内容具体，突出关键数字、人物、事件名称
-- 分析考公价值，而非简单罗列
-- 保持客观中立`
-                        },
-                        { role: 'user', content: `请分析以下新闻：\n\n${newsText}` }
-                    ],
-                    temperature: 0.6,
-                    max_tokens: 3000
-                })
-            });
-
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                throw new Error(err.error?.message || `API请求失败 (${res.status})`);
-            }
-
-            const data = await res.json();
-            return data.choices[0].message.content;
-        }
-
-        function formatMarkdown(text) {
-            return text
-                .replace(/## (.*)/g, '<h4>$1</h4>')
-                .replace(/### (.*)/g, '<h4 style="border-left-color:#00ff88;">$1</h4>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/^- (.*)/gm, '<li>$1</li>')
-                .replace(/\n\n/g, '</p><p>')
-                .replace(/\n/g, '<br>');
-        }
-
-        // ESC关闭弹窗
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') {
-                closeSettings();
-                closeNewsModal();
-            }
-        });
-
-        // 点击遮罩关闭弹窗
-        document.getElementById('newsModal').addEventListener('click', e => {
-            if (e.target.id === 'newsModal') closeNewsModal();
-        });
-        document.getElementById('settingsModal').addEventListener('click', e => {
-            if (e.target.id === 'settingsModal') closeSettings();
-        });
-    </script>
+    <script src="scripts/main.js"></script>
 </body>
 </html>
