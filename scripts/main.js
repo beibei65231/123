@@ -15,10 +15,25 @@
             image: 'https://images.unsplash.com/photo-1495195129352-aeb325a55b65?w=1920&q=80',
             dustColor: 'rgba(232, 200, 122, 0.4)'
         },
+        'city-dawn': {
+            name: '都市黎明',
+            image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1920&q=80',
+            dustColor: 'rgba(200, 200, 220, 0.3)'
+        },
+        'victoria-harbour': {
+            name: '维多利亚港',
+            image: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1920&q=80',
+            dustColor: 'rgba(180, 200, 240, 0.25)'
+        },
         'mountain': {
             name: '山景晨雾',
             image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80',
             dustColor: 'rgba(200, 210, 220, 0.3)'
+        },
+        'minimal-room': {
+            name: '简约书房',
+            image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=1920&q=80',
+            dustColor: 'rgba(232, 200, 122, 0.35)'
         },
         'forest': {
             name: '森林清晨',
@@ -35,40 +50,146 @@
             image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1920&q=80',
             dustColor: 'rgba(232, 200, 122, 0.3)'
         },
-        'library': {
-            name: '图书馆',
-            image: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1920&q=80',
-            dustColor: 'rgba(200, 190, 175, 0.3)'
-        },
-        'city-dawn': {
-            name: '都市黎明',
-            image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80',
-            dustColor: 'rgba(200, 200, 220, 0.3)'
-        },
-        'minimal-room': {
-            name: '简约书房',
-            image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=1920&q=80',
-            dustColor: 'rgba(232, 200, 122, 0.35)'
-        },
         'window-plants': {
             name: '窗边绿植',
             image: 'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=1920&q=80',
             dustColor: 'rgba(180, 210, 160, 0.3)'
+        },
+        'library': {
+            name: '图书馆',
+            image: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1920&q=80',
+            dustColor: 'rgba(200, 190, 175, 0.3)'
         }
     };
 
-    // 音频源
-    const AUDIO_SRC = {
-        rain: 'https://cdn.pixabay.com/audio/2022/03/10/audio_8cb749c841.mp3',
-        cafe: 'https://cdn.pixabay.com/audio/2022/01/18/audio_d0c6ff4bba.mp3',
-        night: 'https://cdn.pixabay.com/audio/2021/08/04/audio_064bdfec7f.mp3',
-        wind: 'https://cdn.pixabay.com/audio/2022/03/15/audio_9e5df6d0e4.mp3',
-        fire: 'https://cdn.pixabay.com/audio/2022/03/10/audio_c8d8e0d8e5.mp3',
-        waves: 'https://cdn.pixabay.com/audio/2021/08/04/audio_064bdfec7f.mp3',
-        birds: 'https://cdn.pixabay.com/audio/2022/02/23/audio_f6b5ddc8c6.mp3',
-        white: 'https://cdn.pixabay.com/audio/2022/01/18/audio_d0c6ff4bba.mp3',
-        notify: 'https://cdn.pixabay.com/audio/2021/08/04/audio_12b0c7443c.mp3'
-    };
+    // 音频系统 - 使用 Web Audio API 生成
+    let audioCtx = null;
+    let audioNodes = {};
+
+    function getAudioContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        return audioCtx;
+    }
+
+    // 生成白噪音缓冲
+    function createNoiseBuffer(ctx, duration) {
+        const sampleRate = ctx.sampleRate;
+        const bufferSize = sampleRate * duration;
+        const buffer = ctx.createBuffer(2, bufferSize, sampleRate);
+        for (let channel = 0; channel < 2; channel++) {
+            const data = buffer.getChannelData(channel);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.5;
+            }
+        }
+        return buffer;
+    }
+
+    // 生成粉噪音（更自然的白噪音）
+    function createPinkNoiseBuffer(ctx, duration) {
+        const sampleRate = ctx.sampleRate;
+        const bufferSize = sampleRate * duration;
+        const buffer = ctx.createBuffer(2, bufferSize, sampleRate);
+        for (let channel = 0; channel < 2; channel++) {
+            const data = buffer.getChannelData(channel);
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+                b6 = white * 0.115926;
+            }
+        }
+        return buffer;
+    }
+
+    // 创建带滤波器的噪音源
+    function createFilteredNoise(ctx, type, volume) {
+        const buffer = type === 'pink' ?
+            createPinkNoiseBuffer(ctx, 4) :
+            createNoiseBuffer(ctx, 4);
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+
+        const gainNode = ctx.createGain();
+        gainNode.gain.value = volume;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+
+        // 不同类型的滤波器设置
+        switch (type) {
+            case 'rain':
+                filter.frequency.value = 800;
+                filter.Q.value = 0.5;
+                break;
+            case 'wind':
+                filter.frequency.value = 400;
+                filter.Q.value = 0.3;
+                break;
+            case 'white':
+                filter.frequency.value = 2000;
+                filter.Q.value = 0.1;
+                break;
+            case 'cafe':
+                filter.frequency.value = 600;
+                filter.Q.value = 0.7;
+                break;
+            case 'night':
+                filter.frequency.value = 300;
+                filter.Q.value = 0.4;
+                break;
+            case 'fire':
+                filter.frequency.value = 500;
+                filter.Q.value = 0.6;
+                break;
+            case 'waves':
+                filter.frequency.value = 350;
+                filter.Q.value = 0.3;
+                break;
+            case 'birds':
+                filter.frequency.value = 2000;
+                filter.Q.value = 1.5;
+                break;
+            default:
+                filter.frequency.value = 1000;
+                filter.Q.value = 0.5;
+        }
+
+        source.connect(filter);
+        filter.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        return { source, gainNode, filter };
+    }
+
+    // 生成提示音
+    function playNotification() {
+        const ctx = getAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        oscillator.frequency.setValueAtTime(800, ctx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.1);
+        oscillator.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.2);
+
+        gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.5);
+    }
 
     // 预设配置 - 清晨主题
     const PRESETS = {
@@ -84,7 +205,7 @@
     // ================================================
     const state = {
         page: 'home',
-        scene: 'morning-sky',
+        scene: 'mountain',
         settings: { brightness: 50, blur: 10 },
         audio: {
             channels: { rain: 0, cafe: 30, night: 20, wind: 0, fire: 0, waves: 0, birds: 0, white: 0 },
@@ -116,7 +237,6 @@
         $.navBtns = document.querySelectorAll('.nav-btn');
         $.pages = document.querySelectorAll('.page');
         $.startBtn = document.getElementById('start-btn');
-        $.exploreBtn = document.getElementById('explore-btn');
         $.sceneCards = document.querySelectorAll('.scene-card');
         $.brightnessSlider = document.getElementById('brightness-slider');
         $.blurSlider = document.getElementById('blur-slider');
@@ -132,6 +252,15 @@
         $.timerDisplay = document.getElementById('timer-display');
         $.timerLabel = document.getElementById('timer-label');
         $.presetTimes = document.querySelectorAll('.preset-time');
+        $.customTimeInput = document.getElementById('custom-time-input');
+        $.customTimeBtn = document.getElementById('custom-time-btn');
+        $.immersionBtn = document.getElementById('immersion-btn');
+        $.immersionOverlay = document.getElementById('immersion-overlay');
+        $.immersionDisplay = document.getElementById('immersion-display');
+        $.immersionLabel = document.getElementById('immersion-label');
+        $.immersionPlayBtn = document.getElementById('immersion-play-btn');
+        $.immersionVolumeSlider = document.getElementById('immersion-volume-slider');
+        $.immersionExitBtn = document.getElementById('immersion-exit-btn');
         $.timerStartBtn = document.getElementById('timer-start-btn');
         $.timerPauseBtn = document.getElementById('timer-pause-btn');
         $.timerResetBtn = document.getElementById('timer-reset-btn');
@@ -296,21 +425,56 @@
     }
 
     // ================================================
-    // 音频系统
+    // 音频系统 - Web Audio API
     // ================================================
     function initAudio() {
-        Object.keys(AUDIO_SRC).forEach(key => {
-            if ($.audios[key] && AUDIO_SRC[key]) {
-                $.audios[key].src = AUDIO_SRC[key];
-                $.audios[key].volume = (state.audio.channels[key] || 0) / 100 * state.audio.masterVolume / 100;
-            }
-        });
+        // 不需要预加载，使用 Web Audio API 生成
+    }
+
+    function startAudioChannel(channel) {
+        if (audioNodes[channel]) return;
+
+        const ctx = getAudioContext();
+        if (ctx.state === 'suspended') {
+            ctx.resume();
+        }
+
+        const volume = state.audio.channels[channel] / 100 * state.audio.masterVolume / 100;
+        const nodes = createFilteredNoise(ctx, channel, volume);
+        nodes.source.start(0);
+        audioNodes[channel] = nodes;
+    }
+
+    function stopAudioChannel(channel) {
+        if (audioNodes[channel]) {
+            try {
+                audioNodes[channel].source.stop();
+            } catch (e) {}
+            audioNodes[channel] = null;
+        }
+    }
+
+    function updateChannelVolume(channel) {
+        if (audioNodes[channel]) {
+            const volume = state.audio.channels[channel] / 100 * state.audio.masterVolume / 100;
+            audioNodes[channel].gainNode.gain.value = volume;
+        }
     }
 
     function setChannelVolume(channel, val) {
         state.audio.channels[channel] = val;
-        if ($.audios[channel]) {
-            $.audios[channel].volume = val / 100 * state.audio.masterVolume / 100;
+
+        // 如果正在播放，更新音量或启动/停止通道
+        if (state.audio.playing) {
+            if (val > 0) {
+                if (!audioNodes[channel]) {
+                    startAudioChannel(channel);
+                } else {
+                    updateChannelVolume(channel);
+                }
+            } else {
+                stopAudioChannel(channel);
+            }
         }
 
         // 更新 UI
@@ -329,9 +493,10 @@
         const text = $.musicStatus.querySelector('.status-text');
 
         if (state.audio.playing) {
+            // 启动所有有音量的通道
             Object.keys(state.audio.channels).forEach(key => {
-                if (state.audio.channels[key] > 0 && $.audios[key]) {
-                    $.audios[key].play().catch(() => {});
+                if (state.audio.channels[key] > 0) {
+                    startAudioChannel(key);
                 }
             });
             $.playBtn.classList.add('playing');
@@ -340,8 +505,9 @@
             dot.classList.add('active');
             text.textContent = '音乐播放中';
         } else {
-            Object.keys($.audios).forEach(key => {
-                if ($.audios[key]) $.audios[key].pause();
+            // 停止所有通道
+            Object.keys(audioNodes).forEach(key => {
+                stopAudioChannel(key);
             });
             $.playBtn.classList.remove('playing');
             $.playBtn.querySelector('.play-icon').textContent = '▶';
@@ -355,23 +521,39 @@
         const config = PRESETS[preset];
         if (!config) return;
 
-        // 先重置所有通道
+        // 先停止所有通道
+        Object.keys(audioNodes).forEach(key => {
+            stopAudioChannel(key);
+        });
+
+        // 重置所有通道音量
         Object.keys(state.audio.channels).forEach(key => {
-            setChannelVolume(key, 0);
+            state.audio.channels[key] = 0;
         });
 
-        // 应用预设
+        // 应用预设音量
         Object.keys(config).forEach(key => {
-            setChannelVolume(key, config[key]);
+            state.audio.channels[key] = config[key];
         });
 
+        // 更新所有 UI
+        Object.keys(state.audio.channels).forEach(key => {
+            const slider = document.querySelector(`.mixer-channel[data-channel="${key}"] .channel-slider`);
+            const levelFill = document.querySelector(`.mixer-channel[data-channel="${key}"] .level-fill`);
+            if (slider) slider.value = state.audio.channels[key];
+            if (levelFill) levelFill.style.height = state.audio.channels[key] + '%';
+        });
+
+        // 如果正在播放，启动新的通道
         if (state.audio.playing) {
-            Object.keys($.audios).forEach(key => $.audios[key]?.pause());
-            Object.keys(state.audio.channels).forEach(key => {
-                if (state.audio.channels[key] > 0) $.audios[key]?.play().catch(() => {});
+            Object.keys(config).forEach(key => {
+                if (config[key] > 0) {
+                    startAudioChannel(key);
+                }
             });
         }
 
+        saveState();
         showToast('已应用预设');
     }
 
@@ -381,7 +563,13 @@
     function updateTimerDisplay() {
         const m = Math.floor(state.timer.remaining / 60);
         const s = state.timer.remaining % 60;
-        $.timerDisplay.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        $.timerDisplay.textContent = timeStr;
+
+        // 同步沉浸模式显示
+        if (immersionMode) {
+            $.immersionDisplay.textContent = timeStr;
+        }
 
         const progress = state.timer.remaining / (state.timer.duration * 60);
         $.timerProgress.style.strokeDashoffset = 754 * (1 - progress);
@@ -397,6 +585,12 @@
         $.timerStartBtn.classList.add('hidden');
         $.timerPauseBtn.classList.remove('hidden');
         $.timerLabel.textContent = '专注中';
+
+        // 更新沉浸模式显示
+        if (immersionMode) {
+            $.immersionLabel.textContent = '专注中';
+            $.immersionPlayBtn.querySelector('.immersion-play-icon').textContent = '⏸';
+        }
 
         state.timer.interval = setInterval(() => {
             state.timer.remaining--;
@@ -423,6 +617,12 @@
         $.timerStartBtn.classList.remove('hidden');
         $.timerPauseBtn.classList.add('hidden');
         $.timerLabel.textContent = '已暂停';
+
+        // 更新沉浸模式显示
+        if (immersionMode) {
+            $.immersionLabel.textContent = '已暂停';
+            $.immersionPlayBtn.querySelector('.immersion-play-icon').textContent = '▶';
+        }
     }
 
     function resetTimer() {
@@ -437,9 +637,8 @@
         state.stats.todayPomo++;
         saveState();
 
-        if (state.timer.soundType !== 'none' && $.audios.notify) {
-            $.audios.notify.src = AUDIO_SRC.notify;
-            $.audios.notify.play().catch(() => {});
+        if (state.timer.soundType !== 'none') {
+            playNotification();
         }
 
         showToast('专注完成！');
@@ -447,6 +646,12 @@
         state.timer.remaining = state.timer.duration * 60;
         updateTimerDisplay();
         $.timerLabel.textContent = '准备开始';
+
+        // 更新沉浸模式显示
+        if (immersionMode) {
+            $.immersionLabel.textContent = '准备开始';
+            $.immersionPlayBtn.querySelector('.immersion-play-icon').textContent = '▶';
+        }
 
         // 自动开始休息
         if (state.timer.autoNext) {
@@ -463,6 +668,54 @@
         state.timer.remaining = m * 60;
         updateTimerDisplay();
         $.timerLabel.textContent = '准备开始';
+    }
+
+    // ================================================
+    // 沉浸模式
+    // ================================================
+    let immersionMode = false;
+
+    function enterImmersion() {
+        immersionMode = true;
+        document.body.classList.add('immersion-mode');
+        $.immersionOverlay.classList.add('active');
+        updateImmersionDisplay();
+
+        // 同步播放按钮状态
+        if (state.timer.running) {
+            $.immersionPlayBtn.querySelector('.immersion-play-icon').textContent = '⏸';
+            $.immersionLabel.textContent = '专注中';
+        } else {
+            $.immersionPlayBtn.querySelector('.immersion-play-icon').textContent = '▶';
+            $.immersionLabel.textContent = state.timer.remaining < state.timer.duration * 60 ? '已暂停' : '准备开始';
+        }
+
+        // 同步音量滑块
+        $.immersionVolumeSlider.value = state.audio.masterVolume;
+    }
+
+    function exitImmersion() {
+        immersionMode = false;
+        document.body.classList.remove('immersion-mode');
+        $.immersionOverlay.classList.remove('active');
+    }
+
+    function updateImmersionDisplay() {
+        const m = Math.floor(state.timer.remaining / 60);
+        const s = state.timer.remaining % 60;
+        $.immersionDisplay.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+
+    function toggleImmersionPlay() {
+        if (state.timer.running) {
+            pauseTimer();
+            $.immersionPlayBtn.querySelector('.immersion-play-icon').textContent = '▶';
+            $.immersionLabel.textContent = '已暂停';
+        } else {
+            startTimer();
+            $.immersionPlayBtn.querySelector('.immersion-play-icon').textContent = '⏸';
+            $.immersionLabel.textContent = '专注中';
+        }
     }
 
     // ================================================
@@ -568,7 +821,6 @@
 
         // 首页
         $.startBtn.onclick = () => goTo('timer');
-        $.exploreBtn.onclick = () => goTo('scene');
 
         // 场景
         $.sceneCards.forEach(card => card.onclick = () => setScene(card.dataset.scene));
@@ -605,12 +857,48 @@
             btn.onclick = () => {
                 $.presetTimes.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                $.customTimeInput.value = '';
                 setDuration(Number(btn.dataset.time));
             };
         });
+
+        // 自定义时间
+        $.customTimeBtn.onclick = () => {
+            const val = parseInt($.customTimeInput.value);
+            if (val && val >= 1 && val <= 180) {
+                $.presetTimes.forEach(b => b.classList.remove('active'));
+                setDuration(val);
+                showToast(`已设置 ${val} 分钟`);
+            } else {
+                showToast('请输入 1-180 之间的分钟数');
+            }
+        };
+
+        $.customTimeInput.onkeypress = e => {
+            if (e.key === 'Enter') {
+                $.customTimeBtn.click();
+            }
+        };
+
         $.timerStartBtn.onclick = startTimer;
         $.timerPauseBtn.onclick = pauseTimer;
         $.timerResetBtn.onclick = resetTimer;
+
+        // 沉浸模式
+        $.immersionBtn.onclick = enterImmersion;
+        $.immersionExitBtn.onclick = exitImmersion;
+        $.immersionPlayBtn.onclick = toggleImmersionPlay;
+        $.immersionVolumeSlider.oninput = e => {
+            state.audio.masterVolume = e.target.value;
+            $.volumeVal.textContent = e.target.value + '%';
+            $.masterVolume.value = e.target.value;
+            Object.keys(audioNodes).forEach(key => {
+                if (audioNodes[key]) {
+                    updateChannelVolume(key);
+                }
+            });
+            saveState();
+        };
 
         $.autoToggle.onclick = () => {
             state.timer.autoNext = !state.timer.autoNext;
