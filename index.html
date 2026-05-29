@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>晨曦 · Dawn</title>
+    <title>StudyNest · 晨曦</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=Noto+Sans+SC:wght@200;300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
     <!-- 背景层 - 清晨窗景 -->
     <div class="background-layer">
-        <img src="https://images.unsplash.com/photo-1495195129352-aeb325a55b65?w=1920&q=80" alt="清晨天空" class="bg-photo active" id="bg-photo">
+        <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80" alt="山景晨雾" class="bg-photo active" id="bg-photo">
     </div>
 
     <!-- 晨光叠加层 -->
@@ -29,7 +29,10 @@
         <header class="top-header" id="top-header">
             <div class="logo">
                 <span class="logo-icon">☀</span>
-                <span class="logo-name">晨曦</span>
+                <div class="logo-text">
+                    <span class="logo-name">StudyNest</span>
+                    <span class="logo-sub">晨曦</span>
+                </div>
             </div>
 
             <nav class="main-nav">
@@ -61,40 +64,41 @@
         <!-- 页面内容 -->
         <main class="page-container">
             <!-- 首页 -->
-            <section class="page active" id="page-home">
-                <div class="hero-section">
-                    <div class="hero-badge">沉浸式学习空间</div>
-                    <h1 class="hero-title">
-                        开启你的<br>
-                        <span class="highlight">清晨自习室</span>
-                    </h1>
-                    <p class="hero-desc">
-                        在宁静的氛围中找回专注的力量<br>
-                        每一个清晨，都值得被认真对待
-                    </p>
-                    <div class="hero-actions">
-                        <button class="btn-primary" id="start-btn">
+            <section class="page active home-page" id="page-home">
+                <div class="home-content">
+                    <div class="hero-section">
+                        <h1 class="hero-title">
+                            StudyNest
+                        </h1>
+                        <p class="hero-subtitle">晨曦 · 沉浸式学习空间</p>
+                        <p class="hero-desc">
+                            在安静中找到专注，让每一次学习都有意义
+                        </p>
+                        <button class="btn-glass" id="start-btn">
                             开始学习
                         </button>
-                        <button class="btn-secondary" id="explore-btn">
-                            探索场景
-                        </button>
-                    </div>
-                    <div class="hero-features">
-                        <div class="feature-item">
-                            <span class="feature-num">9</span>
-                            <span class="feature-label">沉浸场景</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-num">8+</span>
-                            <span class="feature-label">环境音效</span>
-                        </div>
-                        <div class="feature-item">
-                            <span class="feature-num">∞</span>
-                            <span class="feature-label">专注时刻</span>
-                        </div>
                     </div>
                 </div>
+
+                <!-- 底部导航 -->
+                <footer class="home-footer">
+                    <div class="footer-left">
+                        <div class="footer-brand">
+                            <span class="footer-brand-en">StudyNest</span>
+                            <span class="footer-brand-cn">晨曦</span>
+                        </div>
+                    </div>
+                    <div class="footer-center">
+                        <a href="#" onclick="goTo('scene'); return false;">场景</a>
+                        <a href="#" onclick="goTo('timer'); return false;">专注</a>
+                        <a href="#" onclick="goTo('audio'); return false;">音乐</a>
+                        <a href="#" onclick="goTo('plan'); return false;">计划</a>
+                    </div>
+                    <div class="footer-right">
+                        <a href="#" class="footer-link">资源</a>
+                        <a href="#" class="footer-link">关于我们</a>
+                    </div>
+                </footer>
             </section>
 
             <!-- 场景页 -->
@@ -113,10 +117,17 @@
                         </div>
                     </div>
                     <div class="scene-card" data-scene="city-dawn">
-                        <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80" alt="都市黎明">
+                        <img src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&q=80" alt="都市黎明">
                         <div class="scene-info">
                             <h3>都市黎明</h3>
                             <p>城市天际线，安静破晓</p>
+                        </div>
+                    </div>
+                    <div class="scene-card" data-scene="victoria-harbour">
+                        <img src="https://images.unsplash.com/photo-1518684079-3c830dcef090?w=600&q=80" alt="维多利亚港">
+                        <div class="scene-info">
+                            <h3>维多利亚港</h3>
+                            <p>港湾夜色，灯火阑珊</p>
                         </div>
                     </div>
                     <div class="scene-card" data-scene="mountain">
@@ -301,12 +312,17 @@
                         <button class="preset-time" data-time="25">25分钟</button>
                         <button class="preset-time" data-time="45">45分钟</button>
                         <button class="preset-time" data-time="60">60分钟</button>
+                        <div class="custom-time-wrapper">
+                            <input type="number" class="custom-time-input" id="custom-time-input" min="1" max="180" placeholder="自定义">
+                            <button class="custom-time-btn" id="custom-time-btn">确定</button>
+                        </div>
                     </div>
 
                     <div class="timer-controls">
                         <button class="timer-btn primary" id="timer-start-btn">开始</button>
                         <button class="timer-btn secondary hidden" id="timer-pause-btn">暂停</button>
                         <button class="timer-btn outline" id="timer-reset-btn">重置</button>
+                        <button class="timer-btn outline" id="immersion-btn">沉浸模式</button>
                     </div>
 
                     <div class="timer-stats">
@@ -397,6 +413,29 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- 沉浸模式覆盖层 -->
+    <div class="immersion-overlay" id="immersion-overlay">
+        <div class="immersion-status">
+            <span class="immersion-dot"></span>
+            <span class="immersion-text">学习中</span>
+        </div>
+        <div class="immersion-timer">
+            <div class="immersion-display" id="immersion-display">25:00</div>
+            <div class="immersion-label" id="immersion-label">专注中</div>
+        </div>
+        <div class="immersion-controls">
+            <button class="immersion-control-btn" id="immersion-play-btn">
+                <span class="immersion-play-icon">⏸</span>
+            </button>
+            <div class="immersion-volume">
+                <input type="range" id="immersion-volume-slider" min="0" max="100" value="50">
+            </div>
+            <button class="immersion-control-btn immersion-exit-btn" id="immersion-exit-btn">
+                <span>退出</span>
+            </button>
+        </div>
     </div>
 
     <!-- 提示框 -->
