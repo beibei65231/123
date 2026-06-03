@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帮助中心 - 酸枣枝制膜平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .help-hero {
+            padding: 120px 48px 80px;
+            text-align: center;
+        }
+
+        .help-hero h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+
+        .help-hero p {
+            font-size: 1rem;
+            color: var(--color-text-secondary);
+            max-width: 500px;
+            margin: 0 auto 32px;
+        }
+
+        .search-container {
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 16px 20px 16px 48px;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            color: var(--color-text-primary);
+            transition: var(--transition);
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(200, 149, 108, 0.1);
+        }
+
+        .search-container input::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-text-muted);
+        }
+
+        .help-content {
+            max-width: 1000px;
+            margin: -32px auto 0;
+            padding: 0 24px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .help-categories {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .category-card {
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .category-card:hover {
+            border-color: var(--color-border-hover);
+            transform: translateY(-4px);
+        }
+
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            background: rgba(200, 149, 108, 0.1);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--color-accent);
+        }
+
+        .category-card h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .category-card p {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            line-height: 1.5;
+        }
+
+        .faq-section {
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            margin-bottom: 48px;
+        }
+
+        .faq-section h2 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .faq-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .faq-tab {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--color-border);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .faq-tab.active,
+        .faq-tab:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        .faq-list {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .faq-item:hover {
+            border-color: var(--color-border-hover);
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .faq-question:hover {
+            background: var(--color-bg-elevated);
+        }
+
+        .faq-question h4 {
+            font-size: 0.95rem;
+            font-weight: 450;
+        }
+
+        .faq-question i {
+            color: var(--color-text-muted);
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 0 20px 16px;
+            max-height: 500px;
+        }
+
+        .faq-answer p {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            line-height: 1.8;
+        }
+
+        .contact-section {
+            text-align: center;
+        }
+
+        .contact-section h2 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 12px;
+        }
+
+        .contact-section p {
+            font-size: 0.95rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .contact-methods {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .contact-method {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .contact-method:hover {
+            border-color: var(--color-border-hover);
+        }
+
+        .contact-method-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(200, 149, 108, 0.1);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--color-accent);
+        }
+
+        .contact-method-info h4 {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .contact-method-info p {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .help-hero h1 {
+                font-size: 2rem;
+            }
+
+            .help-categories {
+                grid-template-columns: 1fr;
+            }
+
+            .faq-section {
+                padding: 24px;
+            }
+
+            .contact-methods {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><i class="fas fa-leaf"></i></div>
+                <span>酸枣枝制膜</span>
+            </a>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="index.html" class="nav-link">首页</a></li>
+                <li class="nav-item"><a href="index.html#about" class="nav-link">技术介绍</a></li>
+                <li class="nav-item"><a href="index.html#farmer" class="nav-link">农户中心</a></li>
+                <li class="nav-item"><a href="index.html#enterprise" class="nav-link">企业采购</a></li>
+                <li class="nav-item"><a href="help.html" class="nav-link active">帮助中心</a></li>
+            </ul>
+            <div class="nav-auth">
+                <a href="login.html" class="btn-login">登录</a>
+                <a href="login.html" class="btn-register">注册</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="help-hero">
+        <h1>帮助中心</h1>
+        <p>搜索常见问题或浏览下方分类</p>
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="搜索问题，例如：如何挂牌、价格标准...">
+        </div>
+    </section>
+
+    <div class="help-content">
+        <div class="help-categories">
+            <div class="category-card">
+                <div class="category-icon"><i class="fas fa-user-plus"></i></div>
+                <h3>账户相关</h3>
+                <p>注册、登录、密码找回</p>
+            </div>
+            <div class="category-card">
+                <div class="category-icon"><i class="fas fa-tag"></i></div>
+                <h3>交易指南</h3>
+                <p>挂牌、下单、支付、结算</p>
+            </div>
+            <div class="category-card">
+                <div class="category-icon"><i class="fas fa-camera"></i></div>
+                <h3>品控标准</h3>
+                <p>拍照要求、品质分级</p>
+            </div>
+            <div class="category-card">
+                <div class="category-icon"><i class="fas fa-truck"></i></div>
+                <h3>物流配送</h3>
+                <p>发货、物流查询</p>
+            </div>
+            <div class="category-card">
+                <div class="category-icon"><i class="fas fa-money-bill-wave"></i></div>
+                <h3>价格政策</h3>
+                <p>定价机制、优惠活动</p>
+            </div>
+            <div class="category-card">
+                <div class="category-icon"><i class="fas fa-headset"></i></div>
+                <h3>联系客服</h3>
+                <p>在线客服、意见反馈</p>
+            </div>
+        </div>
+
+        <div class="faq-section">
+            <h2>常见问题</h2>
+            <div class="faq-tabs">
+                <button class="faq-tab active">全部</button>
+                <button class="faq-tab">农户相关</button>
+                <button class="faq-tab">企业相关</button>
+                <button class="faq-tab">交易相关</button>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>如何注册成为平台农户？</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>注册步骤：1. 点击"注册"按钮；2. 选择"农户"身份；3. 填写手机号码并获取验证码；4. 设置密码；5. 完善个人信息。完成注册后即可挂牌销售酸枣枝。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>酸枣枝的价格标准是什么？</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>新鲜酸枣枝特级¥3/公斤、一级¥2.5/公斤；干燥酸枣枝特级¥3.8/公斤、一级¥3.2/公斤；粉碎酸枣枝特级¥4.2/公斤、一级¥3.5/公斤。价格每月更新。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>如何上传品控照片？</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>登录后进入"农户中心"，点击"上传照片"标签，按照拍照建议拍摄酸枣枝照片（自然光、多角度），点击上传区域选择照片即可。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>企业如何采购酸枣枝？</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>登录企业账户，在"企业采购中心"浏览供应列表，使用筛选功能找到符合需求的酸枣枝，点击"立即采购"填写订单信息并确认即可。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>交易累积优惠如何获得？</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>累计交易满500公斤享9.5折、满1000公斤享9折、满2000公斤享8.5折。优惠可用于购买可降解薄膜产品。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-section">
+            <h2>还有其他问题？</h2>
+            <p>我们的客服团队随时为您服务</p>
+            <div class="contact-methods">
+                <div class="contact-method">
+                    <div class="contact-method-icon"><i class="fas fa-phone"></i></div>
+                    <div class="contact-method-info">
+                        <h4>电话客服</h4>
+                        <p>400-888-8888</p>
+                    </div>
+                </div>
+                <div class="contact-method">
+                    <div class="contact-method-icon"><i class="fab fa-weixin"></i></div>
+                    <div class="contact-method-info">
+                        <h4>微信客服</h4>
+                        <p>SuanZaoZhiMo</p>
+                    </div>
+                </div>
+                <div class="contact-method">
+                    <div class="contact-method-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="contact-method-info">
+                        <h4>邮箱支持</h4>
+                        <p>service@suanzaobi.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <div class="logo-icon"><i class="fas fa-leaf"></i></div>
+                        <span>酸枣枝制膜平台</span>
+                    </div>
+                    <p>致力于废弃酸枣枝资源的再生利用，推动绿色环保产业发展。</p>
+                </div>
+                <div class="footer-section">
+                    <h4>快速链接</h4>
+                    <ul>
+                        <li><a href="index.html">首页</a></li>
+                        <li><a href="index.html#about">技术介绍</a></li>
+                        <li><a href="index.html#farmer">农户中心</a></li>
+                        <li><a href="index.html#enterprise">企业采购</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>帮助支持</h4>
+                    <ul>
+                        <li><a href="help.html">使用指南</a></li>
+                        <li><a href="help.html">常见问题</a></li>
+                        <li><a href="help.html">联系客服</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>联系我们</h4>
+                    <div class="contact-info">
+                        <p><i class="fas fa-phone"></i> 400-888-8888</p>
+                        <p><i class="fas fa-envelope"></i> service@suanzaobi.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> 河北省邢台市</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 酸枣枝制膜平台. 让废弃资源焕发新生</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', function() {
+                const item = this.parentElement;
+                const isActive = item.classList.contains('active');
+                document.querySelectorAll('.faq-item').forEach(faq => faq.classList.remove('active'));
+                if (!isActive) item.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.faq-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.faq-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.querySelector('.search-container input').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            document.querySelectorAll('.faq-item').forEach(item => {
+                const question = item.querySelector('h4').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer p').textContent.toLowerCase();
+                item.style.display = (question.includes(searchTerm) || answer.includes(searchTerm)) ? 'block' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
