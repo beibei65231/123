@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For You ✦</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loader">
+    <div class="loader-inner">
+      <div class="loader-line"></div>
+      <span class="loader-text">Loading…</span>
+    </div>
+  </div>
+
+  <!-- Mouse Glow Follower -->
+  <div id="cursor-glow" aria-hidden="true"></div>
+
+  <!-- Particle Canvas -->
+  <canvas id="particles" aria-hidden="true"></canvas>
+
+  <!-- Navigation -->
+  <nav id="nav">
+    <div class="nav-brand">✦</div>
+    <div class="nav-controls">
+      <span id="clock" class="nav-clock"></span>
+      <button id="music-btn" class="nav-icon" title="音乐" aria-label="Toggle music">
+        <svg class="icon-music-on" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <svg class="icon-music-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+      </button>
+      <button id="theme-btn" class="nav-icon" title="夜间模式" aria-label="Toggle dark mode">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section id="hero">
+    <div class="hero-content">
+      <p class="hero-date" id="hero-date"></p>
+      <h1 class="hero-name" data-reveal>她的名字</h1>
+      <p class="hero-tagline" data-reveal>世界很大，而你恰好闪闪发光。</p>
+    </div>
+    <div class="scroll-hint">
+      <span>Scroll Down</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT ===== -->
+  <section id="about" class="section">
+    <div class="container">
+      <h2 class="section-title" data-reveal>关于她</h2>
+      <p class="section-subtitle" data-reveal>每一个小细节，都值得被记住</p>
+      <div class="cards-grid">
+        <div class="about-card" data-reveal>
+          <div class="card-icon">🌿</div>
+          <h3>性格</h3>
+          <p>温柔而坚定，像春天的风，柔软却有力量。</p>
+        </div>
+        <div class="about-card" data-reveal>
+          <div class="card-icon">🎨</div>
+          <h3>爱好</h3>
+          <p>喜欢在安静的午后画画，用色彩记录世界的美好。</p>
+        </div>
+        <div class="about-card" data-reveal>
+          <div class="card-icon">🍰</div>
+          <h3>喜欢的食物</h3>
+          <p>草莓蛋糕、抹茶拿铁，和所有甜甜的东西。</p>
+        </div>
+        <div class="about-card" data-reveal>
+          <div class="card-icon">🎬</div>
+          <h3>喜欢的电影</h3>
+          <p>《情书》《天使爱美丽》，和所有关于温柔的故事。</p>
+        </div>
+        <div class="about-card" data-reveal>
+          <div class="card-icon">🌇</div>
+          <h3>喜欢的城市</h3>
+          <p>京都的红叶、巴黎的黄昏、大理的云。</p>
+        </div>
+        <div class="about-card" data-reveal>
+          <div class="card-icon">🩵</div>
+          <h3>喜欢的颜色</h3>
+          <p>雾霾蓝和奶白色，像天空和云朵的组合。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GALLERY ===== -->
+  <section id="gallery" class="section">
+    <div class="container">
+      <h2 class="section-title" data-reveal>美好瞬间</h2>
+      <p class="section-subtitle" data-reveal>时间会走远，照片会留下</p>
+      <div class="masonry" data-reveal>
+        <div class="masonry-item"><img src="images/1.jpg" alt="moment"></div>
+        <div class="masonry-item"><img src="images/2.jpg" alt="moment"></div>
+        <div class="masonry-item"><img src="images/3.jpg" alt="moment"></div>
+        <div class="masonry-item"><img src="images/4.jpg" alt="moment"></div>
+        <div class="masonry-item"><img src="images/5.jpg" alt="moment"></div>
+        <div class="masonry-item"><img src="images/1.jpg" alt="moment"></div>
+        <div class="masonry-item"><img src="images/2.jpg" alt="moment"></div>
+        <div class="masonry-item"><img src="images/3.jpg" alt="moment"></div>
+        <div class="masonry-item"><img src="images/4.jpg" alt="moment"></div>
+        <div class="masonry-item"><img src="images/5.jpg" alt="moment"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <button class="lightbox-close" aria-label="Close">&times;</button>
+    <div class="lightbox-content"></div>
+  </div>
+
+  <!-- ===== QUOTES ===== -->
+  <section id="quotes" class="section">
+    <div class="container">
+      <h2 class="section-title" data-reveal>她说</h2>
+      <p class="section-subtitle" data-reveal>那些被记住的话</p>
+      <div class="quotes-list">
+        <blockquote class="quote-item" data-reveal>
+          <p>"生活不是等待暴风雨过去，而是学会在雨中跳舞。"</p>
+        </blockquote>
+        <blockquote class="quote-item" data-reveal>
+          <p>"要做一个温柔但不好惹的人。"</p>
+        </blockquote>
+        <blockquote class="quote-item" data-reveal>
+          <p>"比起被人喜欢，我更想被人尊重。"</p>
+        </blockquote>
+        <blockquote class="quote-item" data-reveal>
+          <p>"慢慢来，一切都是最好的安排。"</p>
+        </blockquote>
+        <blockquote class="quote-item" data-reveal>
+          <p>"今天的风，好像在对我说加油。"</p>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TIMELINE ===== -->
+  <section id="timeline" class="section">
+    <div class="container">
+      <h2 class="section-title" data-reveal>时光轴</h2>
+      <p class="section-subtitle" data-reveal>我们一起走过的路</p>
+      <div class="timeline">
+        <div class="timeline-line"></div>
+        <div class="timeline-item left" data-reveal>
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <span class="timeline-year">2021</span>
+            <h3>勇敢出发</h3>
+            <p>那一年她决定不再等待，开始为自己而活。</p>
+          </div>
+        </div>
+        <div class="timeline-item right" data-reveal>
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <span class="timeline-year">2022</span>
+            <h3>看见世界</h3>
+            <p>独自去了很多地方，把风景和自由都装进了心里。</p>
+          </div>
+        </div>
+        <div class="timeline-item left" data-reveal>
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <span class="timeline-year">2023</span>
+            <h3>破茧成长</h3>
+            <p>经历了一些不容易的事，但她比自己想象的更坚强。</p>
+          </div>
+        </div>
+        <div class="timeline-item right" data-reveal>
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <span class="timeline-year">2024</span>
+            <h3>闪闪发光</h3>
+            <p>越来越清楚自己想要什么，活成了自己喜欢的样子。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hidden Surprise Star -->
+  <button id="surprise-star" title="✨" aria-label="A surprise for you">✦</button>
+
+  <!-- Letter Modal -->
+  <div id="letter-modal" class="letter-modal" aria-hidden="true">
+    <div class="letter-backdrop"></div>
+    <div class="letter-paper">
+      <button class="letter-close" aria-label="Close">&times;</button>
+      <div class="letter-content">
+        <h2>给未来的你</h2>
+        <div class="letter-body">
+          <p>不知道你看到这封信的时候，是什么样的心情。</p>
+          <p>但我想告诉你——</p>
+          <p>在这个世界上，有一个人，<br>认真地希望你快乐。</p>
+          <p>不是因为你做了什么，<br>不是因为你成为了谁，<br>而是因为<strong>你就是你</strong>。</p>
+          <p>愿你永远有勇气做自己，<br>愿你永远被温柔以待，<br>愿你的每一天，都比昨天更接近你想成为的样子。</p>
+          <p>这个世界因为有你，而变得不一样。</p>
+          <p class="letter-sign">永远为你骄傲的人 ✦</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <p class="footer-quote">愿你永远自由、热烈、被爱。</p>
+    <p class="footer-made">Made with ❤️</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
